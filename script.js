@@ -1,7 +1,7 @@
 const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzGD2akVdn5TdycTWbHvoNuLQBDWaPzIkJCY2wLgD4JvN5F47qpaOqVVyqSJWDnqtCcbA/exec";
 
-let selectedClass = "5A";
-let adminSelectedClass = "5A";
+let selectedClass = "6A";
+let adminSelectedClass = "6A";
 let selectedPackageKey = "hewan";
 let studentsList = [];
 let studentResults = {};
@@ -77,7 +77,7 @@ function processAdminLogin() {
 
 function openAdminDashboard() {
     document.getElementById('admin-dashboard-page').style.display = 'flex';
-    switchAdminClass(selectedClass === 'Contohkan' ? '5A' : selectedClass);
+    switchAdminClass(selectedClass === 'Contohkan' ? '6A' : selectedClass);
 
     if (adminInterval) clearInterval(adminInterval);
     adminInterval = setInterval(() => {
@@ -95,8 +95,8 @@ function logoutAdmin() {
 
 function switchAdminClass(kelas) {
     adminSelectedClass = kelas;
-    document.getElementById('admin-btn-5a').classList.toggle('active', kelas === '5A');
-    document.getElementById('admin-btn-5b').classList.toggle('active', kelas === '5B');
+    document.getElementById('admin-btn-6a').classList.toggle('active', kelas === '6A');
+    document.getElementById('admin-btn-6b').classList.toggle('active', kelas === '6B');
     fetchAdminDatabaseData(false);
 }
 
