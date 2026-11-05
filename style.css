@@ -211,9 +211,9 @@ body {
     margin: 8px 0;
 }
 
-.btn-class, .btn-package {
+.btn-class {
     flex: 1;
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
     border: 1px solid #334155;
     background: #0f172a;
@@ -223,7 +223,7 @@ body {
     font-size: 13px;
 }
 
-.btn-class.active, .btn-package.active {
+.btn-class.active {
     background: #0284c7;
     border-color: #38bdf8;
 }
@@ -372,7 +372,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     cursor: crosshair;
-    touch-action: none; /* Mencegah layar bergerak/scroll saat digambar di layar sentuh */
+    touch-action: none;
     width: 100%;
     max-width: 800px;
     height: 380px;
