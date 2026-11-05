@@ -42,7 +42,7 @@ let currentBrushSize = 5;
 let undoStack = [];
 
 const availablePalette = [
-    "#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", 
+    "#000000", "#FFFFFF", "#FF0000", "#00FF00", "#00FF00", "#0000FF", 
     "#FFFF00", "#00FFFF", "#FF00FF", "#FFA500", "#800080", 
     "#008080", "#808080", "#A52A2A", "#FFC0CB", "#4682B4",
     "#D2B48C", "#8B0000", "#556B2F", "#483D8B", "#FF1493",
@@ -280,9 +280,9 @@ function startEntireGame() {
     promptStudentChoice();
 }
 
-// ==========================================
-// PENGAMBILAN KORDINAT AKURAT (MOUSE & TOUCH)
-// ==========================================
+// =========================================================================
+// PENGAMBILAN KOORDINAT AKURAT (PRESISI TINGGI UNTUK LAYAR HDMI & TOUCHSCREEN)
+// =========================================================================
 function getEventCoordinates(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -307,56 +307,43 @@ function getEventCoordinates(e) {
     };
 }
 
-// ==========================================
-// INISIALISASI KANVAS & FIX TOTAL TOUCHSCREEN
-// ==========================================
+// =========================================================================
+// INISIALISASI KANVAS UNTUK MOUSE, TOUCH, DAN MONITOR SENTUH DOKONGAN HDMI
+// =========================================================================
 function initCanvas() {
     canvas = document.getElementById('drawing-canvas');
     ctx = canvas.getContext('2d');
 
-    // Hapus event lama jika ada
-    canvas.onmousedown = null;
-    canvas.onmousemove = null;
-    canvas.onmouseup = null;
-    canvas.onmouseleave = null;
+    // Set resolusi internal kanvas
+    canvas.width = 800;
+    canvas.height = 380;
 
-    // Listener Mouse
-    canvas.addEventListener('mousedown', (e) => {
+    // Pointer Events (Mendukung Mouse, Touchscreen, & Stylus HDMI)
+    canvas.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        canvas.setPointerCapture(e.pointerId);
         startAction(getEventCoordinates(e));
     });
-    canvas.addEventListener('mousemove', (e) => {
+
+    canvas.addEventListener('pointermove', (e) => {
         e.preventDefault();
-        moveAction(getEventCoordinates(e));
-    });
-    canvas.addEventListener('mouseup', (e) => {
-        e.preventDefault();
-        stopAction();
-    });
-    canvas.addEventListener('mouseleave', (e) => {
-        stopAction();
+        if (isDrawing) moveAction(getEventCoordinates(e));
     });
 
-    // Listener Touch (Layar Sentuh HP / Tablet / Touchscreen) - Menggunakan { passive: false } agar e.preventDefault() berfungsi sempurna
-    canvas.addEventListener('touchstart', (e) => {
+    canvas.addEventListener('pointerup', (e) => {
         e.preventDefault();
-        startAction(getEventCoordinates(e));
-    }, { passive: false });
+        try { canvas.releasePointerCapture(e.pointerId); } catch(err){}
+        stopAction();
+    });
 
-    canvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        moveAction(getEventCoordinates(e));
-    }, { passive: false });
-
-    canvas.addEventListener('touchend', (e) => {
+    canvas.addEventListener('pointercancel', (e) => {
         e.preventDefault();
         stopAction();
-    }, { passive: false });
+    });
 
-    canvas.addEventListener('touchcancel', (e) => {
-        e.preventDefault();
-        stopAction();
-    }, { passive: false });
+    // Mencegah Gestur Sentuh Layar Default
+    canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+    canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 }
 
 function clearCanvas() {
