@@ -372,7 +372,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     cursor: crosshair;
-    touch-action: none; /* Sangat penting untuk mencegah scroll layar HP saat menggambar */
+    touch-action: none; /* Mencegah layar bergerak/scroll saat digambar di layar sentuh */
     width: 100%;
     max-width: 800px;
     height: 380px;
