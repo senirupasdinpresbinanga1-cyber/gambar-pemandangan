@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Seni Rupa - Kanvas & Penilaian AI</title>
+    <title>Seni Rupa - Kanvas & Penilaian AI Pemandangan</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -89,16 +89,16 @@
         </div>
     </div>
 
-    <!-- Modal Pilih Judul Gambar untuk Siswa -->
+    <!-- Modal Pilih Tema Pemandangan untuk Siswa -->
     <div id="student-choice-modal" class="full-overlay" style="display: none;">
         <div class="card modal-card" style="max-width: 500px;">
             <div class="modal-header">
-                <h3><i class="fas fa-book-open"></i> Pilih Objek Gambar</h3>
+                <h3><i class="fas fa-mountain"></i> Pilih Tema Pemandangan</h3>
             </div>
             <div class="modal-body" style="text-align: left;">
-                <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">Halo <strong id="modal-student-name" style="color: #38bdf8;">-</strong>, silakan pilih objek yang ingin digambar dari paket <strong id="modal-package-name" style="color: #f59e0b;">-</strong>:</p>
+                <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">Halo <strong id="modal-student-name" style="color: #38bdf8;">-</strong>, silakan pilih sub-tema pemandangan yang ingin digambar:</p>
                 
-                <label style="font-size: 13px; color: #94a3b8; display: block; margin-bottom: 8px;">Daftar Objek Tersedia:</label>
+                <label style="font-size: 13px; color: #94a3b8; display: block; margin-bottom: 8px;">Daftar Pemandangan Tersedia:</label>
                 <select id="package-item-select" class="btn-class" style="width: 100%; margin-bottom: 20px; text-align: left; background: #0f172a; padding: 12px; font-size: 14px;"></select>
 
                 <button class="btn btn-glow" onclick="confirmStudentChoice()" style="width: 100%; padding: 12px; font-size: 15px;">Mulai Menggambar <i class="fas fa-play"></i></button>
@@ -144,13 +144,13 @@
         <main class="app-container">
             <header id="app-header-el" class="app-header">
                 <h1>🎨 Seni Rupa <span id="header-class-badge" class="badge">Kelas 6A</span></h1>
-                <p>Kanvas Menggambar & Penilaian AI Otomatis (3 Menit)</p>
+                <p>Kanvas Menggambar Pemandangan & Penilaian AI Otomatis (3 Menit)</p>
             </header>
 
             <!-- Setup Panel -->
             <div id="setup-panel" class="glass-card">
                 <div class="setup-content">
-                    <h3>📜 Konfigurasi Sesi Menggambar & Paket Soal</h3>
+                    <h3>📜 Konfigurasi Sesi Menggambar Pemandangan</h3>
                     
                     <label class="setup-label">Pilih Kelas / Mode:</label>
                     <div class="class-selector-group">
@@ -159,19 +159,13 @@
                         <button class="btn-class" data-class="Contohkan" onclick="selectClass('Contohkan')" style="background: #065f46; border-color: #34d399;">✨ Contohkan</button>
                     </div>
 
-                    <label class="setup-label" style="margin-top: 15px;">Pilih Paket Kategori:</label>
-                    <div class="class-selector-group">
-                        <button class="btn-package active" data-package="hewan" onclick="selectPackage('hewan')">🐾 Nama Hewan (26)</button>
-                        <button class="btn-package" data-package="rumah" onclick="selectPackage('rumah')">🏠 Benda di Rumah (26)</button>
-                        <button class="btn-package" data-package="sekolah" onclick="selectPackage('sekolah')">🎒 Benda di Sekolah (26)</button>
-                    </div>
-
-                    <ul class="rule-list">
+                    <ul class="rule-list" style="margin-top: 15px;">
                         <li>📥 <strong>Database Spreadsheet:</strong> Nama siswa ditarik otomatis dari sheet[cite: 1, 2].</li>
-                        <li>🔒 <strong>Sistem Objek Unik:</strong> Objek yang sudah diambil siswa lain otomatis hilang[cite: 2].</li>
+                        <li>🔒 <strong>Sistem Objek Unik:</strong> Sub-tema pemandangan yang sudah diambil siswa lain otomatis hilang[cite: 2].</li>
                         <li>⏳ <strong>Batas Waktu:</strong> Durasi menggambar <strong>180 detik (3 menit)</strong> per siswa (Kecuali mode Contohkan tanpa timer)[cite: 2, 3].</li>
+                        <li>🎨 <strong>Sistem Penilaian AI Baru:</strong> Semakin banyak ragam warna, semakin penuh kanvas, dan semakin kaya macam elemen pemandangan, nilai akan semakin tinggi.</li>
                     </ul>
-                    <button id="start-btn" class="btn btn-glow"><i class="fas fa-play"></i> Mulai Sesi Menggambar (Fullscreen)</button>
+                    <button id="start-btn" class="btn btn-glow" style="margin-top: 15px;"><i class="fas fa-play"></i> Mulai Sesi Menggambar (Fullscreen)</button>
                 </div>
             </div>
 
@@ -181,7 +175,7 @@
                     <div class="info-item">
                         <span class="label">Pemain Saat Ini:</span>
                         <h2 id="current-player" class="highlight-name">-</h2>
-                        <span id="target-soal-badge" class="target-badge">Objek: -</span>
+                        <span id="target-soal-badge" class="target-badge">Tema: -</span>
                     </div>
                     <div class="timer-display" id="timer-box">
                         ⏳ Sisa Waktu: <span id="timer">180</span> dtk
@@ -232,7 +226,7 @@
 
             <!-- Finish Panel -->
             <div id="finish-panel" class="glass-card hidden">
-                <h2>🏆 Laporan Hasil Karya & Penilaian AI</h2>
+                <h2>🏆 Laporan Hasil Karya & Penilaian AI Pemandangan</h2>
                 <p id="sync-status-msg" style="color: #38bdf8; font-size: 13px; margin-bottom: 15px;">Semua hasil nilai dan gambar siswa telah berhasil diperbarui ke Google Spreadsheet secara real-time[cite: 2, 3].</p>
                 
                 <div class="result-table-wrapper">
@@ -241,7 +235,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Siswa</th>
-                                <th>Objek</th>
+                                <th>Tema Pemandangan</th>
                                 <th>Nilai AI</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
@@ -250,7 +244,7 @@
                         <tbody id="result-table-body"></tbody>
                     </table>
                 </div>
-                <button id="restart-btn" class="btn btn-glow" style="margin-top: 15px; width:100%;"><i class="fas fa-redo"></i> Ulangi Sesi / Ganti Paket</button>
+                <button id="restart-btn" class="btn btn-glow" style="margin-top: 15px; width:100%;"><i class="fas fa-redo"></i> Ulangi Sesi</button>
             </div>
         </main>
     </div>
