@@ -1,4 +1,4 @@
-const GS_WEB_APP_URL = "PASTE_URL_WEB_APP_GS_ANDA_DI_SINI";
+const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzGD2akVdn5TdycTWbHvoNuLQBDWaPzIkJCY2wLgD4JvN5F47qpaOqVVyqSJWDnqtCcbA/exec";
 
 let selectedClass = "5A";
 let adminSelectedClass = "5A";
@@ -94,7 +94,7 @@ async function fetchAdminDatabaseData(isBackground = false) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Mengambil data dari Spreadsheet kelas ${adminSelectedClass}...</td></tr>`;
     }
 
-    if (GS_WEB_APP_URL && GS_WEB_APP_URL !== "PASTE_URL_WEB_APP_GS_ANDA_DI_SINI") {
+    if (GS_WEB_APP_URL) {
         try {
             let response = await fetch(`${GS_WEB_APP_URL}?action=getAdminData&kelas=${adminSelectedClass}`);
             let rows = await response.json();
@@ -174,7 +174,7 @@ async function fetchStudentsFromDatabase() {
         return;
     }
 
-    if (GS_WEB_APP_URL && GS_WEB_APP_URL !== "PASTE_URL_WEB_APP_GS_ANDA_DI_SINI") {
+    if (GS_WEB_APP_URL) {
         try {
             let response = await fetch(`${GS_WEB_APP_URL}?action=getStudents&kelas=${selectedClass}`);
             let names = await response.json();
@@ -188,8 +188,6 @@ async function fetchStudentsFromDatabase() {
             console.error("Gagal ambil dari database:", e);
             setupStudentUI(["Gagal memuat koneksi Spreadsheet"]);
         }
-    } else {
-        setupStudentUI(["URL Web App Belum Dikonfigurasi"]);
     }
 }
 
@@ -229,8 +227,8 @@ function startEntireGame() {
     if (elem.requestFullscreen) { elem.requestFullscreen().catch(()=>{}); }
 
     let names = window.rawDatabaseNames || [];
-    if(names.length === 0 || names[0].includes("Belum ada") || names[0].includes("Gagal") || names[0].includes("URL")) {
-        alert("Harap pastikan URL Apps Script valid dan Sheet Data_5A / Data_5B memiliki daftar nama siswa!");
+    if(names.length === 0 || names[0].includes("Belum ada") || names[0].includes("Gagal")) {
+        alert("Harap pastikan Sheet Data_5A / Data_5B memiliki daftar nama siswa!");
         return;
     }
 
@@ -563,7 +561,7 @@ function evaluateDrawingWithAI() {
     let totalPixels = width * height;
     let nonWhitePixels = 0;
     let uniqueColors = new Set();
-    let quadrantFilled = [0, 0, 0, 0]; // 4 Kuadran kanvas
+    let quadrantFilled = [0, 0, 0, 0];
 
     let midX = width / 2;
     let midY = height / 2;
@@ -746,7 +744,7 @@ function saveStudentScoreToDatabase(student, imageBase64, scoreVal, statusVal) {
         }
     };
 
-    if (GS_WEB_APP_URL && GS_WEB_APP_URL !== "PASTE_URL_WEB_APP_GS_ANDA_DI_SINI") {
+    if (GS_WEB_APP_URL) {
         fetch(GS_WEB_APP_URL, {
             method: "POST",
             mode: "no-cors",
