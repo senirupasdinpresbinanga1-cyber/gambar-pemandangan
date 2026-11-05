@@ -2,7 +2,6 @@ const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzGD2akVdn5TdycT
 
 let selectedClass = "6A";
 let adminSelectedClass = "6A";
-let selectedPackageKey = "hewan";
 let studentsList = [];
 let studentResults = {};
 let takenObjects = [];
@@ -12,27 +11,16 @@ let timeLeft = 180;
 let isGameActive = false;
 let adminInterval = null;
 
-const packagesData = {
-    hewan: [
-        "Kucing", "Anjing", "Kelinci", "Kambing", "Sapi", "Kuda", "Ayam", "Bebek", 
-        "Burung", "Ikan", "Kupu-kupu", "Lebah", "Semut", "Belalang", "Capung", 
-        "Katak", "Kura-kura", "Ular", "Buaya", "Gajah", "Harimau", "Singa", 
-        "Monyet", "Jerapah", "Zebra", "Panda"
-    ],
-    rumah: [
-        "Meja", "Kursi", "Sofa", "Lemari", "Tempat tidur", "Bantal", "Guling", 
-        "Selimut", "Kipas angin", "Televisi", "Kulkas", "Mesin cuci", "Kompor", 
-        "Panci", "Wajan", "Piring", "Gelas", "Sendok", "Garpu", "Sapu", "Pel", 
-        "Jam dinding", "Cermin", "Lampu", "Karpet", "Payung"
-    ],
-    sekolah: [
-        "Buku tulis", "Buku paket", "Pensil", "Pulpen", "Penghapus", "Penggaris", 
-        "Rautan", "Krayon", "Pensil warna", "Spidol", "Kertas gambar", "Buku gambar", 
-        "Tas sekolah", "Tempat pensil", "Papan tulis", "Meja guru", "Kursi siswa", 
-        "Lemari kelas", "Penggaris panjang", "Penghapus papan", "Jam dinding", 
-        "Bendera", "Tiang bendera", "Tempat sampah", "Sapu ijuk", "Gunting"
-    ]
-};
+// Satu paket tunggal: Menggambar Pemandangan (berisi berbagai macam sub-tema pemandangan)
+const pemandanganPackage = [
+    "Pemandangan Gunung", "Pemandangan Pantai", "Pemandangan Sawah", "Pemandangan Air Terjun", 
+    "Pemandangan Desa", "Pemandangan Taman Bunga", "Pemandangan Sungai", "Pemandangan Hutan", 
+    "Pemandangan Senja / Sunset", "Pemandangan Malam Hari", "Pemandangan Danau", "Pemandangan Padang Rumput", 
+    "Pemandangan Laut", "Pemandangan Lembah", "Pemandangan Bukit", "Pemandangan Jembatan", 
+    "Pemandangan Rumah Kayu", "Pemandangan Air Mancur", "Pemandangan Kota", "Pemandangan Kebun Binatang", 
+    "Pemandangan Kebun Buah", "Pemandangan Pelangi", "Pemandangan Pulau Kecil", "Pemandangan Gua", 
+    "Pemandangan Gurun Pasir", "Pemandangan Kutub Es"
+];
 
 let canvas, ctx;
 let isDrawing = false;
@@ -42,7 +30,7 @@ let currentBrushSize = 5;
 let undoStack = [];
 
 const availablePalette = [
-    "#000000", "#FFFFFF", "#FF0000", "#00FF00", "#00FF00", "#0000FF", 
+    "#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", 
     "#FFFF00", "#00FFFF", "#FF00FF", "#FFA500", "#800080", 
     "#008080", "#808080", "#A52A2A", "#FFC0CB", "#4682B4",
     "#D2B48C", "#8B0000", "#556B2F", "#483D8B", "#FF1493",
@@ -174,17 +162,6 @@ function selectClass(className) {
     fetchStudentsFromDatabase();
 }
 
-function selectPackage(pkgKey) {
-    selectedPackageKey = pkgKey;
-    document.querySelectorAll('.btn-package').forEach(btn => {
-        if (btn.getAttribute('data-package') === pkgKey) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-}
-
 async function fetchStudentsFromDatabase() {
     const sidebarClassLabel = document.getElementById('sidebar-class-label');
     const headerClassBadge = document.getElementById('header-class-badge');
@@ -280,9 +257,6 @@ function startEntireGame() {
     promptStudentChoice();
 }
 
-// =========================================================================
-// PENGAMBILAN KOORDINAT AKURAT (PRESISI TINGGI UNTUK LAYAR HDMI & TOUCHSCREEN)
-// =========================================================================
 function getEventCoordinates(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -307,18 +281,13 @@ function getEventCoordinates(e) {
     };
 }
 
-// =========================================================================
-// INISIALISASI KANVAS UNTUK MOUSE, TOUCH, DAN MONITOR SENTUH DOKONGAN HDMI
-// =========================================================================
 function initCanvas() {
     canvas = document.getElementById('drawing-canvas');
     ctx = canvas.getContext('2d');
 
-    // Set resolusi internal kanvas
     canvas.width = 800;
     canvas.height = 380;
 
-    // Pointer Events (Mendukung Mouse, Touchscreen, & Stylus HDMI)
     canvas.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         canvas.setPointerCapture(e.pointerId);
@@ -341,7 +310,6 @@ function initCanvas() {
         stopAction();
     });
 
-    // Mencegah Gestur Sentuh Layar Default
     canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
     canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 }
@@ -379,18 +347,16 @@ function promptStudentChoice() {
     }
 
     document.getElementById('modal-student-name').textContent = student.name;
-    document.getElementById('modal-package-name').textContent = selectedPackageKey.toUpperCase();
     
     const selectEl = document.getElementById('package-item-select');
     selectEl.innerHTML = '';
     
-    let items = packagesData[selectedPackageKey] || [];
-    let availableItems = items.filter(item => !takenObjects.includes(item.toLowerCase()));
+    let availableItems = pemandanganPackage.filter(item => !takenObjects.includes(item.toLowerCase()));
 
     if (availableItems.length === 0) {
         let opt = document.createElement('option');
         opt.value = "";
-        opt.textContent = "Semua objek di paket ini sudah diambil!";
+        opt.textContent = "Semua sub-tema pemandangan sudah diambil!";
         selectEl.appendChild(opt);
     } else {
         availableItems.forEach(item => {
@@ -408,7 +374,7 @@ function confirmStudentChoice() {
     const selectEl = document.getElementById('package-item-select').value;
     
     if (!selectEl) {
-        alert("Semua objek dalam paket ini sudah habis diambil!");
+        alert("Semua sub-tema pemandangan sudah habis diambil!");
         return;
     }
 
@@ -419,7 +385,7 @@ function confirmStudentChoice() {
     document.getElementById('game-panel').classList.remove('hidden');
 
     document.getElementById('current-player').textContent = studentsList[currentIndex].name;
-    document.getElementById('target-soal-badge').textContent = `Objek: ${selectEl}`;
+    document.getElementById('target-soal-badge').textContent = `Tema: ${selectEl}`;
 
     undoStack = [];
     clearCanvas();
@@ -580,9 +546,9 @@ function floodFill(startX, startY, fillColor) {
     ctx.putImageData(imgData, 0, 0);
 }
 
-// ==========================================
-// SISTEM PENILAIAN RUBRIK AI
-// ==========================================
+// =========================================================================
+// SISTEM PENILAIAN AI TERBARU (PEMANDANGAN: WARNA, FULL KANVAS, MACAM GAMBAR)
+// =========================================================================
 function evaluateDrawingWithAI() {
     const width = canvas.width;
     const height = canvas.height;
@@ -591,14 +557,11 @@ function evaluateDrawingWithAI() {
 
     let totalPixels = width * height;
     let nonWhitePixels = 0;
-    let coloredPixels = 0;
     let uniqueColors = new Set();
-    let edgeTransitions = 0;
-    let grid = new Array(height);
+    let quadrantFilled = [0, 0, 0, 0]; // 4 Kuadran kanvas untuk mendeteksi sebaran elemen pemandangan
 
-    for (let y = 0; y < height; y++) {
-        grid[y] = new Uint8Array(width);
-    }
+    let midX = width / 2;
+    let midY = height / 2;
 
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -607,111 +570,77 @@ function evaluateDrawingWithAI() {
             let g = data[idx + 1];
             let b = data[idx + 2];
 
+            // Cek piksel bukan warna latar putih
             if (!(r > 245 && g > 245 && b > 245)) {
                 nonWhitePixels++;
-                grid[y][x] = 1;
-                uniqueColors.add(`${Math.floor(r / 32)},${Math.floor(g / 32)},${Math.floor(b / 32)}`);
                 
-                if (!(r < 30 && g < 30 && b < 30)) {
-                    coloredPixels++;
-                }
-            } else {
-                grid[y][x] = 0;
+                // Merekam variasi warna RGB (dikelompokkan tiap step 32 untuk akurasi variasi nuansa warna)
+                uniqueColors.add(`${Math.floor(r / 32)},${Math.floor(g / 32)},${Math.floor(b / 32)}`);
+
+                // Deteksi sebaran area/quadrant gambar di kanvas
+                if (x < midX && y < midY) quadrantFilled[0] = 1;      // Kiri Atas
+                else if (x >= midX && y < midY) quadrantFilled[1] = 1; // Kanan Atas
+                else if (x < midX && y >= midY) quadrantFilled[2] = 1; // Kiri Bawah
+                else quadrantFilled[3] = 1;                            // Kanan Bawah
             }
         }
     }
 
-    let completionRatio = nonWhitePixels / totalPixels;
-    let colorFillRatio = coloredPixels / (nonWhitePixels || 1);
+    // 1. Coverage / Full pada Kanvas (0.0 hingga 1.0)
+    let canvasCoverageRatio = nonWhitePixels / totalPixels;
 
-    for (let y = 1; y < height - 1; y += 2) {
-        for (let x = 1; x < width - 1; x += 2) {
-            if (grid[y][x] === 1) {
-                let neighbors = grid[y - 1][x] + grid[y + 1][x] + grid[y][x - 1] + grid[y][x + 1];
-                if (neighbors === 1 || neighbors === 3) {
-                    edgeTransitions++;
-                }
-            }
-        }
-    }
-    let jaggedRatio = edgeTransitions / (nonWhitePixels || 1);
+    // 2. Variasi / Macam Warna (Jumlah warna unik di kanvas)
+    let colorVarietyCount = uniqueColors.size;
 
-    let scoreObjek = 0;
-    if (completionRatio < 0.02) scoreObjek = 10;
-    else if (completionRatio < 0.05) scoreObjek = 40;
-    else if (completionRatio < 0.10) scoreObjek = 65;
-    else if (completionRatio < 0.20) scoreObjek = 85;
-    else scoreObjek = 95;
+    // 3. Sebaran Macam Elemen Pemandangan (Berdasarkan jumlah kuadran aktif yang terisi objek)
+    let activeQuadrants = quadrantFilled.reduce((a, b) => a + b, 0);
 
-    let scoreKerapian = Math.max(20, Math.min(100, Math.round(100 - (jaggedRatio * 120) + (colorFillRatio * 30))));
+    // --- FORMULA PENILAIAN AI BARU ---
+    // Semakin banyak warna, semakin penuh kanvas, dan semakin kaya macam/sebaran gambar, nilai semakin tinggi.
+    
+    // Skor Full Kanvas (Maks 35 poin)
+    let scoreCoverage = Math.min(35, canvasCoverageRatio * 140);
 
-    let colorCount = uniqueColors.size;
-    let scoreHarmoni = 40;
-    if (colorCount >= 2 && colorCount <= 4) scoreHarmoni = 75;
-    else if (colorCount > 4 && colorCount <= 10) scoreHarmoni = 92;
-    else if (colorCount > 10) scoreHarmoni = 85;
+    // Skor Variasi Warna (Maks 35 poin)
+    let scoreColorVariety = Math.min(35, colorVarietyCount * 3.5);
 
-    let scoreKreativitas = Math.min(100, 50 + (colorCount * 5) + (completionRatio > 0.15 ? 20 : 0));
-    let scoreTeknik = Math.max(30, Math.min(100, Math.round(90 - (jaggedRatio * 50))));
+    // Skor Ragam Elemen / Macam Gambar Pemandangan (Maks 30 poin)
+    let scoreElementRichness = (activeQuadrants / 4) * 30;
 
-    let safetyCap = 100;
-    let safetyStatusText = "Objek lengkap dan pewarnaan rapi (Berpeluang 85–100).";
-
-    if (completionRatio < 0.03) {
-        safetyCap = 20;
-        safetyStatusText = "Hanya sebagian kecil objek yang dikerjakan (Maksimal nilai 20).";
-    } else if (completionRatio < 0.08) {
-        safetyCap = 50;
-        safetyStatusText = "Objek utama belum lengkap (Maksimal nilai 50).";
-    } else if (scoreKerapian < 50) {
-        safetyStatusText = "Objek lengkap tetapi pewarnaan kurang rapi.";
+    let finalScore = Math.round(scoreCoverage + scoreColorVariety + scoreElementRichness);
+    
+    // Batas minimum jika gambar hampir kosong
+    if (canvasCoverageRatio < 0.01) {
+        finalScore = Math.max(5, finalScore);
+    } else {
+        finalScore = Math.max(25, Math.min(100, finalScore));
     }
 
-    let rawFinalScore = 
-        (scoreObjek * 0.30) +
-        (scoreKerapian * 0.25) +
-        (scoreHarmoni * 0.25) +
-        (scoreKreativitas * 0.10) +
-        (scoreTeknik * 0.10);
-
-    let finalScore = Math.min(rawFinalScore, safetyCap);
-    finalScore = Math.round(finalScore);
-
-    let kelebihan = completionRatio >= 0.08 ? "Gambar memiliki bentuk objek yang cukup jelas dengan variasi warna yang menarik." : "Pengerjaan awal sudah dimulai.";
-    let kekurangan = scoreKerapian < 70 ? "Pewarnaan dan garis tepi masih kurang rapi atau belum merata." : "Perlu penambahan detail ornament pendukung agar lebih artistik.";
+    let keteranganWarna = colorVarietyCount > 8 ? "Sangat kaya variasi warna." : (colorVarietyCount > 4 ? "Variasi warna cukup baik." : "Variasi warna masih sedikit.");
+    let keteranganFull = canvasCoverageRatio > 0.4 ? "Kanvas terisi dengan sangat penuh dan ekspresif." : (canvasCoverageRatio > 0.15 ? "Kanvas terisi dengan baik." : "Kanvas masih banyak area kosong.");
+    let keteranganElemen = activeQuadrants >= 3 ? "Komposisi dan macam elemen pemandangan tersebar luas." : "Elemen pemandangan masih terpusat di satu bagian.";
 
     let detailedFeedback = `
-Analisis AI:
-- Kondisi Kelengkapan: ${safetyStatusText}
-- Tingkat Area Terisi: ${Math.round(completionRatio * 100)}%
+Analisis AI Pemandangan:
+- Tingkat Full Kanvas (Coverage): ${Math.round(canvasCoverageRatio * 100)}% (${keteranganFull})
+- Variasi Macam Warna: ${colorVarietyCount} jenis warna (${keteranganWarna})
+- Sebaran Macam Elemen Pemandangan: ${activeQuadrants}/4 Bagian Area (${keteranganElemen})
 
 Rincian Skor Aspek:
-1. Kesesuaian Objek: ${Math.round(scoreObjek)} / 100 (Bobot 30%)
-2. Kerapian Pewarnaan: ${Math.round(scoreKerapian)} / 100 (Bobot 25%)
-3. Harmoni Warna: ${Math.round(scoreHarmoni)} / 100 (Bobot 25%)
-4. Kreativitas & Detail: ${Math.round(scoreKreativitas)} / 100 (Bobot 10%)
-5. Teknik Digital: ${Math.round(scoreTeknik)} / 100 (Bobot 10%)
+1. Kepadatan / Full Kanvas: ${Math.round(scoreCoverage)} / 35
+2. Variasi Warna: ${Math.round(scoreColorVariety)} / 35
+3. Kekayaan Elemen Pemandangan: ${Math.round(scoreElementRichness)} / 30
 
 Kelebihan:
-- ${kelebihan}
+- Karya pemandangan menunjukkan eksplorasi warna dan kelengkapan elemen gambar yang harmonis.
 
-Kekurangan:
-- ${kekurangan}
-
-Saran Perbaikan:
-- Tingkatkan ketelitian dalam merapikan batas garis dan maksimalkan pewarnaan pada seluruh bagian objek.
+Saran Peningkatan:
+- Untuk mendapatkan nilai maksimal, penuhi seluruh area kanvas dengan beragam warna cat dan tambahkan lebih banyak macam objek pemandangan (seperti pohon, awan, matahari, atau burung).
     `.trim();
 
     return { 
         score: `${finalScore}%`, 
-        desc: detailedFeedback,
-        rawScores: {
-            objek: Math.round(scoreObjek),
-            kerapian: Math.round(scoreKerapian),
-            harmoni: Math.round(scoreHarmoni),
-            kreativitas: Math.round(scoreKreativitas),
-            teknik: Math.round(scoreTeknik)
-        }
+        desc: detailedFeedback
     };
 }
 
@@ -826,7 +755,7 @@ function saveStudentScoreToDatabase(student, imageBase64, scoreVal, statusVal) {
 
     let payload = {
         kelas: selectedClass,
-        package: selectedPackageKey,
+        package: "pemandangan",
         type: "appendSingle",
         result: {
             nama: student.name,
@@ -913,7 +842,7 @@ function endAllTurns() {
 }
 
 function openImageModal(studentName, imgData, score, desc) {
-    document.getElementById('modal-preview-title').innerHTML = `<i class="fas fa-robot"></i> Hasil & Analisis Gambar: ${studentName}`;
+    document.getElementById('modal-preview-title').innerHTML = `<i class="fas fa-robot"></i> Hasil & Analisis AI: ${studentName}`;
     document.getElementById('modal-img-preview').src = imgData;
     document.getElementById('ai-score-text').innerHTML = `🤖 Nilai Akurasi AI: <span style="color: #f59e0b;">${score}</span>`;
     document.getElementById('ai-desc-text').style.whiteSpace = "pre-line";
