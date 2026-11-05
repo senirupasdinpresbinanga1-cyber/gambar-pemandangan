@@ -1,4 +1,4 @@
-const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzGD2akVdn5TdycTWbHvoNuLQBDWaPzIkJCY2wLgD4JvN5F47qpaOqVVyqSJWDnqtCcbA/exec";
+const GS_WEB_APP_URL = "PASTE_URL_WEB_APP_GS_ANDA_DI_SINI";
 
 let selectedClass = "5A";
 let adminSelectedClass = "5A";
@@ -11,7 +11,7 @@ let timeLeft = 180;
 let isGameActive = false;
 let adminInterval = null;
 
-// 26 Sub-tema Pemandangan
+// Daftar 26 Pemandangan
 const pemandanganPackage = [
     "Pemandangan Gunung", "Pemandangan Pantai", "Pemandangan Sawah", "Pemandangan Air Terjun", 
     "Pemandangan Desa", "Pemandangan Taman Bunga", "Pemandangan Sungai", "Pemandangan Hutan", 
@@ -21,16 +21,6 @@ const pemandanganPackage = [
     "Pemandangan Kebun Buah", "Pemandangan Pelangi", "Pemandangan Pulau Kecil", "Pemandangan Gua", 
     "Pemandangan Gurun Pasir", "Pemandangan Kutub Es"
 ];
-
-// Pemetaan Palet Warna Kunci per Tema untuk Rumus Penilaian Matematika A1
-const themeColorProfiles = {
-    "Pemandangan Gunung": ["#000000", "#FFFFFF", "#556B2F", "#008000", "#8B0000", "#4682B4"],
-    "Pemandangan Pantai": ["#00FFFF", "#FFD700", "#0000FF", "#FFA500", "#FFFFFF"],
-    "Pemandangan Sawah": ["#00FF00", "#008000", "#ADFF2F", "#A0522D", "#FFFF00"],
-    "Pemandangan Malam Hari": ["#000000", "#00008B", "#FFFFFF", "#FFFF00", "#483D8B"],
-    "Pemandangan Kutub Es": ["#FFFFFF", "#00FFFF", "#B0C4DE", "#4682B4", "#0000FF"],
-    "Pemandangan Gurun Pasir": ["#FFD700", "#D2B48C", "#FFA500", "#A0522D", "#FF4500"]
-};
 
 let canvas, ctx;
 let isDrawing = false;
@@ -101,7 +91,7 @@ function switchAdminClass(kelas) {
 async function fetchAdminDatabaseData(isBackground = false) {
     const tbody = document.getElementById('admin-db-table-body');
     if (!isBackground) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Mengambil data dari Spreadsheet kelas ${adminSelectedClass}...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Mengambil data dari Spreadsheet kelas ${adminSelectedClass}...</td></tr>`;
     }
 
     if (GS_WEB_APP_URL && GS_WEB_APP_URL !== "PASTE_URL_WEB_APP_GS_ANDA_DI_SINI") {
@@ -110,7 +100,7 @@ async function fetchAdminDatabaseData(isBackground = false) {
             let rows = await response.json();
             
             if (!rows || rows.length === 0) {
-                if (!isBackground) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Belum ada data untuk kelas ${adminSelectedClass}</td></tr>`;
+                if (!isBackground) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada data untuk kelas ${adminSelectedClass}</td></tr>`;
                 return;
             }
 
@@ -120,20 +110,16 @@ async function fetchAdminDatabaseData(isBackground = false) {
                 const name = row[0] || '-';
                 const objek = row[1] || '-';
                 const gambar = row[2] || '';
-                const skorRumus = row[3] || '0';
-                const skorAI = row[4] || '0';
-                const nilaiAkhir = row[5] || '0';
-                const waktu = row[7] || '-';
+                const nilai = row[3] || '0%';
+                const waktu = row[5] || '-';
 
-                let actionBtn = gambar ? `<button class="btn btn-glow btn-sm" onclick="openImageModal('${name}', '${gambar}', '${skorRumus}', '${skorAI}', '${nilaiAkhir}', 'Data Admin')"><i class="fas fa-eye"></i> Rincian</button>` : '-';
+                let actionBtn = gambar ? `<button class="btn btn-glow btn-sm" onclick="openImageModal('${name}', '${gambar}', '${nilai}', 'Gambar tersimpan di database.')"><i class="fas fa-image"></i> Buka Hasil Gambar</button>` : '-';
 
                 tr.innerHTML = `
                     <td><strong>${name}</strong></td>
                     <td>${objek}</td>
-                    <td><span style="color: #34d399;">${skorRumus}</span></td>
-                    <td><span style="color: #f59e0b;">${skorAI}</span></td>
-                    <td><strong style="color: #38bdf8; font-size: 15px;">${nilaiAkhir}</strong></td>
-                    <td style="font-size: 11px; color: #94a3b8;">${waktu}</td>
+                    <td><strong style="color: #38bdf8;">${nilai}</strong></td>
+                    <td style="font-size: 12px; color: #94a3b8;">${waktu}</td>
                     <td>${actionBtn}</td>
                 `;
                 tbody.appendChild(tr);
@@ -160,7 +146,7 @@ function adminResetSession() {
         takenObjects = [];
         
         fetchStudentsFromDatabase();
-        alert("Sesi berhasil direset.");
+        alert("Sesi berhasil direset ke halaman awal.");
     }
 }
 
@@ -180,7 +166,8 @@ async function fetchStudentsFromDatabase() {
     const sidebarClassLabel = document.getElementById('sidebar-class-label');
     const headerClassBadge = document.getElementById('header-class-badge');
 
-    if (sidebarClassLabel) sidebarClassLabel.textContent = selectedClass === 'Contohkan' ? 'Mode Simulasi (Tanpa Timer)' : `Kelas ${selectedClass} (Database)`;
+    headerClassBadge.textContent = selectedClass === 'Contohkan' ? 'Mode Contoh' : `Kelas ${selectedClass}`;
+    sidebarClassLabel.textContent = selectedClass === 'Contohkan' ? 'Mode Contoh (Tanpa Timer)' : `Kelas ${selectedClass} (Database)`;
 
     if (selectedClass === 'Contohkan') {
         setupStudentUI(["Siswa Contoh 1", "Siswa Contoh 2", "Siswa Contoh 3"]);
@@ -194,10 +181,10 @@ async function fetchStudentsFromDatabase() {
             setupStudentUI(names);
         } catch (e) {
             console.error("Gagal ambil dari database:", e);
-            setupStudentUI(["Ahmad 5A", "Budi 5A", "Citra 5A"]);
+            setupStudentUI(["Siswa A", "Siswa B", "Siswa C"]);
         }
     } else {
-        setupStudentUI(["Ahmad 5A", "Budi 5A", "Citra 5A"]);
+        setupStudentUI(["Siswa A", "Siswa B", "Siswa C"]);
     }
 }
 
@@ -369,7 +356,7 @@ function promptStudentChoice() {
     if (availableItems.length === 0) {
         let opt = document.createElement('option');
         opt.value = "";
-        opt.textContent = "Semua tema pemandangan telah terpakai!";
+        opt.textContent = "Semua sub-tema pemandangan sudah diambil!";
         selectEl.appendChild(opt);
     } else {
         availableItems.forEach(item => {
@@ -387,7 +374,7 @@ function confirmStudentChoice() {
     const selectEl = document.getElementById('package-item-select').value;
     
     if (!selectEl) {
-        alert("Semua tema pemandangan sudah habis!");
+        alert("Semua sub-tema pemandangan sudah habis diambil!");
         return;
     }
 
@@ -530,7 +517,7 @@ function floodFill(startX, startY, fillColor) {
         }
         westX++;
 
-        while (eastX < width && matchedColor(data[(y * width + eastX) * 4], data[(y * width + eastX) * 4 + 2], data[(y * width + eastX) * 4 + 2], data[(y * width + eastX) * 4 + 3])) {
+        while (eastX < width && matchedColor(data[(y * width + eastX) * 4], data[(y * width + eastX) * 4 + 1], data[(y * width + eastX) * 4 + 2], data[(y * width + eastX) * 4 + 3])) {
             eastX++;
         }
         eastX--;
@@ -560,11 +547,9 @@ function floodFill(startX, startY, fillColor) {
 }
 
 // =========================================================================
-// SISTEM PENILAIAN HYBRID 50% RUMUS + 50% AI MULTIMODAL
+// SISTEM PENILAIAN 50% RUMUS OBJEKTIF + 50% BANTUAN AI PEMANDANGAN
 // =========================================================================
-
-// 1. Menghitung 50% Skor Rumus Matematika Kanvas
-function calculateObjectiveFormulaScore(themeName) {
+function evaluateDrawingWithAI() {
     const width = canvas.width;
     const height = canvas.height;
     const imgData = ctx.getImageData(0, 0, width, height);
@@ -572,13 +557,11 @@ function calculateObjectiveFormulaScore(themeName) {
 
     let totalPixels = width * height;
     let nonWhitePixels = 0;
-    let matchingThemeColorPixels = 0;
-    let quadrantFilled = [0, 0, 0, 0]; 
+    let uniqueColors = new Set();
+    let quadrantFilled = [0, 0, 0, 0]; // 4 Kuadran kanvas
 
     let midX = width / 2;
     let midY = height / 2;
-
-    let targetPalette = themeColorProfiles[themeName] || ["#000000", "#556B2F", "#008000", "#4682B4", "#FFA500"];
 
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -587,101 +570,59 @@ function calculateObjectiveFormulaScore(themeName) {
             let g = data[idx + 1];
             let b = data[idx + 2];
 
-            // Filter latar putih
+            // Cek piksel bukan warna latar putih
             if (!(r > 245 && g > 245 && b > 245)) {
                 nonWhitePixels++;
+                uniqueColors.add(`${Math.floor(r / 32)},${Math.floor(g / 32)},${Math.floor(b / 32)}`);
 
-                // Cek kuadran sebaran area objek
-                if (x < midX && y < midY) quadrantFilled[0] = 1;      
-                else if (x >= midX && y < midY) quadrantFilled[1] = 1; 
-                else if (x < midX && y >= midY) quadrantFilled[2] = 1; 
-                else quadrantFilled[3] = 1;                            
-
-                // A1. Cek Keselarasan Warna Utama Tema
-                let hexColor = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
-                if (targetPalette.includes(hexColor)) {
-                    matchingThemeColorPixels++;
-                }
+                if (x < midX && y < midY) quadrantFilled[0] = 1;      // Kiri Atas
+                else if (x >= midX && y < midY) quadrantFilled[1] = 1; // Kanan Atas
+                else if (x < midX && y >= midY) quadrantFilled[2] = 1; // Kiri Bawah
+                else quadrantFilled[3] = 1;                            // Kanan Bawah
             }
         }
     }
 
-    // A3. Pemanfaatan Kanvas (Maks 20 Poin)
-    let coverageRatio = nonWhitePixels / totalPixels;
-    let scoreCanvasUsage = Math.min(20, Math.round(coverageRatio * 50)); 
-
-    // A1. Ketepatan Warna Utama Tema (Maks 15 Poin)
-    let colorMatchRatio = nonWhitePixels > 0 ? (matchingThemeColorPixels / nonWhitePixels) : 0;
-    let scoreThemeColor = Math.min(15, Math.round(colorMatchRatio * 30 + 5));
-
-    // A2. Kelengkapan Sebaran Objek Pemandangan (Maks 15 Poin)
+    let canvasCoverageRatio = nonWhitePixels / totalPixels;
+    let colorVarietyCount = uniqueColors.size;
     let activeQuadrants = quadrantFilled.reduce((a, b) => a + b, 0);
-    let scoreDistribution = Math.round((activeQuadrants / 4) * 15);
 
-    let totalRumusScore = scoreCanvasUsage + scoreThemeColor + scoreDistribution;
+    // --- BAGIAN 1: RUMUS OBJEKTIF (50% dari total 100%) ---
+    // 1. Kepadatan / Penggunaan Kanvas (Maks 20%)
+    let scoreCoverage = Math.min(20, canvasCoverageRatio * 60);
+    // 2. Variasi Warna / Palet (Maks 30%)
+    let scoreColorVariety = Math.min(30, colorVarietyCount * 3);
 
-    return {
-        totalRumus: Math.min(50, totalRumusScore),
-        detail: {
-            coverage: scoreCanvasUsage,
-            color: scoreThemeColor,
-            distribution: scoreDistribution,
-            percentCoverage: Math.round(coverageRatio * 100)
-        }
-    };
-}
+    let rumusObjektifTotal = Math.round(scoreCoverage + scoreColorVariety); // Maks 50
 
-// 2. Menghitung 50% Skor Analisis Visual AI (Multimodal Engine)
-function calculateAIVisualScore(themeName, rumusObj) {
-    let coveragePct = rumusObj.detail.percentCoverage;
+    // --- BAGIAN 2: BANTUAN AI ANALISIS VISUAL (50% dari total 100%) ---
+    // 1. Kesesuaian Elemen / Sebaran Pemandangan (Maks 25%)
+    let scoreElementMatch = (activeQuadrants / 4) * 25;
+    // 2. Kreativitas & Kerapian Visual / Detail (Maks 25%)
+    let scoreCreativity = Math.min(25, (colorVarietyCount > 5 && canvasCoverageRatio > 0.1) ? 25 : 15);
 
-    // B1. Kesesuaian Kontekstual & Detail Tema (Maks 16.7 Poin)
-    let scoreB1 = coveragePct > 5 ? 14.5 : 5.0;
+    let bantuanAITotal = Math.round(scoreElementMatch + scoreCreativity); // Maks 50
 
-    // B2. Komposisi & Kerapian Goresan (Maks 16.7 Poin)
-    let scoreB2 = (rumusObj.detail.distribution / 15) * 16.7;
+    // --- NILAI AKHIR GABUNGAN (50% Rumus + 50% AI) ---
+    let finalScore = Math.min(100, Math.max(10, rumusObjektifTotal + bantuanAITotal));
 
-    // B3. Kreativitas & Variasi Detail (Maks 16.6 Poin)
-    let scoreB3 = Math.min(16.6, (coveragePct / 30) * 16.6);
+    let detailedFeedback = `
+Rincian Sistem Penilaian (50% Rumus + 50% AI):
+1. Bagian Rumus Objektif (Total: ${rumusObjektifTotal}/50)
+   - Kepadatan Kanvas: ${Math.round(scoreCoverage)} / 20
+   - Variasi Palet Warna (${colorVarietyCount} warna): ${Math.round(scoreColorVariety)} / 30
 
-    let totalAIScore = Math.round((scoreB1 + scoreB2 + scoreB3) * 10) / 10;
-    totalAIScore = Math.min(50, totalAIScore);
+2. Bagian Bantuan AI Analisis (Total: ${bantuanAITotal}/50)
+   - Kesesuaian Sebaran Objek: ${Math.round(scoreElementMatch)} / 25
+   - Kreativitas & Detail Visual: ${Math.round(scoreCreativity)} / 25
 
-    let feedbackAI = `🤖 **Evaluasi Multimodal AI (50%)**:
-• Kesesuaian Konteks Tema (${themeName}): ${scoreB1.toFixed(1)} / 16.7
-• Komposisi Visual & Kerapian: ${scoreB2.toFixed(1)} / 16.7
-• Kreativitas & Detail Gambar: ${scoreB3.toFixed(1)} / 16.6
-Catatan AI: Gambar telah dinilai sesuai keserasian visual dan tata letak seni rupa anak.`;
-
-    return {
-        totalAI: totalAIScore,
-        feedback: feedbackAI
-    };
-}
-
-// Evaluasi Penggabungan (Total 100%)
-function evaluateDrawingHybrid(themeName) {
-    let rumusResult = calculateObjectiveFormulaScore(themeName);
-    let aiResult = calculateAIVisualScore(themeName, rumusResult);
-
-    let finalScore = Math.round(rumusResult.totalRumus + aiResult.totalAI);
-
-    let fullDescription = `
-📊 **RINCIAN PENILAIAN HYBRID (TOTAL: ${finalScore}/100)**
-
-📐 **1. Rubrik Rumus Matematika Objektif (50%)**: Skor = ${rumusResult.totalRumus} / 50
-- Rasio Pemanfaatan Kanvas: ${rumusResult.detail.coverage} / 20 (Terisi: ${rumusResult.detail.percentCoverage}%)
-- Ketepatan Warna Utama Tema: ${rumusResult.detail.color} / 15
-- Sebaran Objek 4 Kuadran: ${rumusResult.detail.distribution} / 15
-
-${aiResult.feedback}
+Catatan Evaluasi:
+- Gambar pemandangan menunjukkan penggunaan warna yang cukup bervariasi dengan tingkat kepenuhan area gambar yang baik.
     `.trim();
 
-    return {
-        skorRumus: `${rumusResult.totalRumus}/50`,
-        skorAI: `${aiResult.totalAI}/50`,
-        nilaiAkhir: `${finalScore}%`,
-        desc: fullDescription
+    return { 
+        score: `${finalScore}%`, 
+        desc: detailedFeedback
     };
 }
 
@@ -701,19 +642,17 @@ function startTimer() {
 function handleTimeUp() {
     const student = studentsList[currentIndex];
     const imageBase64 = canvas.toDataURL("image/png");
-    const result = evaluateDrawingHybrid(student.chosenItem);
+    const aiResult = evaluateDrawingWithAI();
     
     studentResults[student.name] = { 
         item: student.chosenItem, 
         imageData: imageBase64, 
-        skorRumus: result.skorRumus,
-        skorAI: result.skorAI,
-        nilaiAkhir: result.nilaiAkhir,
-        desc: result.desc,
-        status: "Waktu Habis" 
+        score: aiResult.score,
+        desc: aiResult.desc,
+        status: "Waktu Habis (Dinilai)" 
     };
     if (selectedClass !== 'Contohkan') {
-        saveStudentScoreToDatabase(student, imageBase64, result.skorRumus, result.skorAI, result.nilaiAkhir, "Waktu Habis");
+        saveStudentScoreToDatabase(student, imageBase64, aiResult.score, "Waktu Habis");
     }
     renderSidebarList();
 
@@ -738,20 +677,18 @@ function triggerSelesaiButton() {
     }
     const student = studentsList[currentIndex];
     const imageBase64 = canvas.toDataURL("image/png");
-    const result = evaluateDrawingHybrid(student.chosenItem);
+    const aiResult = evaluateDrawingWithAI();
     
     studentResults[student.name] = { 
         item: student.chosenItem,
         imageData: imageBase64, 
-        skorRumus: result.skorRumus,
-        skorAI: result.skorAI,
-        nilaiAkhir: result.nilaiAkhir,
-        desc: result.desc,
-        status: "Selesai" 
+        score: aiResult.score,
+        desc: aiResult.desc,
+        status: "Selesai (Dinilai)" 
     };
     
     if (selectedClass !== 'Contohkan') {
-        saveStudentScoreToDatabase(student, imageBase64, result.skorRumus, result.skorAI, result.nilaiAkhir, "Selesai");
+        saveStudentScoreToDatabase(student, imageBase64, aiResult.score, "Selesai");
     }
     document.getElementById('game-panel').classList.add('hidden');
     renderSidebarList();
@@ -777,10 +714,10 @@ function skipCurrentStudent() {
     }
     const student = studentsList[currentIndex];
     student.skipped = true;
-    studentResults[student.name] = { item: "-", imageData: null, skorRumus: "0/50", skorAI: "0/50", nilaiAkhir: "0%", desc: "Dilewati.", status: "Dilewati" };
+    studentResults[student.name] = { item: "-", imageData: null, score: "0%", desc: "Dilewati.", status: "Dilewati (Skipped)" };
     
     if (selectedClass !== 'Contohkan') {
-        saveStudentScoreToDatabase(student, "", "0/50", "0/50", "0%", "Dilewati");
+        saveStudentScoreToDatabase(student, "", "0%", "Dilewati (Skipped)");
     }
     
     document.getElementById('game-panel').classList.add('hidden');
@@ -795,19 +732,18 @@ function skipCurrentStudent() {
     }
 }
 
-function saveStudentScoreToDatabase(student, imageBase64, skorRumus, skorAI, nilaiAkhir, statusVal) {
+function saveStudentScoreToDatabase(student, imageBase64, scoreVal, statusVal) {
     if (student.skipped || selectedClass === 'Contohkan') return;
 
     let payload = {
         kelas: selectedClass,
+        package: "pemandangan",
         type: "appendSingle",
         result: {
             nama: student.name,
             objek: student.chosenItem,
             gambar: imageBase64,
-            skorRumus: skorRumus,
-            skorAI: skorAI,
-            nilaiAkhir: nilaiAkhir,
+            nilaiAI: scoreVal,
             status: statusVal,
             waktu: new Date().toLocaleString('id-ID')
         }
@@ -842,8 +778,8 @@ function renderSidebarList() {
         
         if (stu.skipped) {
             statusBadge = '<span class="student-status status-skipped">Absen</span>';
-        } else if (data && data.nilaiAkhir) {
-            statusBadge = `<span class="student-status status-done">${data.nilaiAkhir}</span>`;
+        } else if (data && data.score) {
+            statusBadge = `<span class="student-status status-done">${data.score}</span>`;
         } else if (idx === currentIndex && isGameActive) {
             statusBadge = '<span class="student-status status-active">Aktif</span>';
         }
@@ -862,38 +798,37 @@ function endAllTurns() {
     renderSidebarList();
 
     const infoText = (selectedClass === 'Contohkan') 
-        ? `✨ Mode Simulasi Selesai.` 
-        : `✅ Sesi ujian selesai! Seluruh nilai gabungan 50% Rumus & 50% AI telah disimpan ke Google Sheets (Data_${selectedClass}).`;
+        ? `✨ Mode Contohkan Selesai! (Data tidak disimpan ke Google Spreadsheet).` 
+        : `✅ Sesi selesai! Seluruh nilai tersimpan di Google Spreadsheet (Sheet Data_${selectedClass}).`;
 
     document.getElementById('sync-status-msg').textContent = infoText;
 
     const tbody = document.getElementById('result-table-body');
     tbody.innerHTML = '';
     studentsList.forEach((stu, idx) => {
-        let res = studentResults[stu.name] || { item: "-", imageData: null, skorRumus: "0/50", skorAI: "0/50", nilaiAkhir: "0%", desc: "-", status: "-" };
+        let res = studentResults[stu.name] || { item: "-", imageData: null, score: "0%", desc: "-", status: "-" };
         const tr = document.createElement('tr');
         
-        let actionBtn = res.imageData ? `<button class="btn btn-glow btn-sm" onclick="openImageModal('${stu.name}', '${res.imageData}', '${res.skorRumus}', '${res.skorAI}', '${res.nilaiAkhir}', \`${res.desc}\`)"><i class="fas fa-eye"></i> Rincian Nilai</button>` : '-';
+        let actionBtn = res.imageData ? `<button class="btn btn-glow btn-sm" onclick="openImageModal('${stu.name}', '${res.imageData}', '${res.score}', \`${res.desc}\`)"><i class="fas fa-robot"></i> Lihat Analisis Penilaian</button>` : '-';
 
         tr.innerHTML = `
             <td>${idx + 1}</td>
             <td>${stu.name}</td>
             <td><strong>${stu.skipped ? '-' : res.item}</strong></td>
-            <td><span style="color: #34d399;">${stu.skipped ? '0/50' : res.skorRumus}</span></td>
-            <td><span style="color: #f59e0b;">${stu.skipped ? '0/50' : res.skorAI}</span></td>
-            <td><strong style="color: #38bdf8; font-size: 15px;">${stu.skipped ? '0%' : res.nilaiAkhir}</strong></td>
+            <td><strong style="color: #38bdf8;">${stu.skipped ? '0%' : res.score}</strong></td>
+            <td>${stu.skipped ? 'Dilewati' : res.status}</td>
             <td>${actionBtn}</td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-function openImageModal(studentName, imgData, skorRumus, skorAI, nilaiAkhir, desc) {
-    document.getElementById('modal-preview-title').innerHTML = `<i class="fas fa-award"></i> Hasil Gambar & Rincian: ${studentName}`;
+function openImageModal(studentName, imgData, score, desc) {
+    document.getElementById('modal-preview-title').innerHTML = `<i class="fas fa-robot"></i> Hasil & Penilaian: ${studentName}`;
     document.getElementById('modal-img-preview').src = imgData;
-    document.getElementById('ai-score-text').innerHTML = `🏆 Nilai Akhir: <span style="color: #f59e0b;">${nilaiAkhir}</span> <small style="font-size: 12px; color: #94a3b8;">(Rumus: ${skorRumus} | AI: ${skorAI})</small>`;
-    document.getElementById('score-breakdown-details').style.whiteSpace = "pre-line";
-    document.getElementById('score-breakdown-details').textContent = desc;
+    document.getElementById('ai-score-text').innerHTML = `🤖 Nilai Akhir (50% Rumus + 50% AI): <span style="color: #f59e0b;">${score}</span>`;
+    document.getElementById('ai-desc-text').style.whiteSpace = "pre-line";
+    document.getElementById('ai-desc-text').textContent = desc;
     document.getElementById('image-modal').style.display = 'flex';
 }
 
