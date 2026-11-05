@@ -550,7 +550,7 @@ function floodFill(startX, startY, fillColor) {
 }
 
 // =========================================================================
-// SISTEM PENILAIAN HIBRIDA (50% RUMUS OBJEKTIF + 50% BANTUAN AI PEMANDANGAN)
+// SISTEM PENILAIAN SANGAT KETAT: 80% RUBRIK OBJEKTIF + 20% BANTUAN AI
 // =========================================================================
 function evaluateDrawingWithAI() {
     const width = canvas.width;
@@ -589,30 +589,48 @@ function evaluateDrawingWithAI() {
     let colorVarietyCount = uniqueColors.size;
     let activeQuadrants = quadrantFilled.reduce((a, b) => a + b, 0);
 
-    // --- 1. RUMUS OBJEKTIF (50%) ---
-    let scoreCoverage = Math.min(20, canvasCoverageRatio * 60);
+    // --- PENGAMAN KETAT UNTUK GAMBAR MINIMALIS / GARIS KOSONG ---
+    // Jika piksel gambar kurang dari 2% dari total kanvas (seperti hanya garis coretan kecil), 
+    // langsung berikan pinalti keras sehingga nilai berkisar di angka 5% - 8%.
+    if (canvasCoverageRatio < 0.02) {
+        let minimalScore = Math.max(5, Math.round(canvasCoverageRatio * 250));
+        return {
+            score: `${minimalScore}%`,
+            desc: `Analisis Penilaian Sangat Ketat:\n- Kanvas hampir kosong (Hanya coretan garis minimalis/sedikit: ${Math.round(canvasCoverageRatio * 100)}%).\n- Sesuai aturan ketat, karya minimalis mendapati skor dasar ${minimalScore}%.\n- Harap isi kanvas secara penuh dengan variasi warna dan objek pemandangan agar mendapat nilai tinggi.`
+        };
+    }
+
+    // --- 1. RUBRIK OBJEKTIF UTAMA (80%) ---
+    // A. Kepadatan / Kepenuhan Kanvas (Maks 50%) - Dinilai sangat ketat
+    let scoreCoverage = Math.min(50, canvasCoverageRatio * 100);
+    // B. Variasi Palet Warna (Maks 30%)
     let scoreColorVariety = Math.min(30, colorVarietyCount * 3);
-    let rumusObjektifTotal = Math.round(scoreCoverage + scoreColorVariety);
+    
+    let rubrikObjektifTotal = Math.round(scoreCoverage + scoreColorVariety); // Maks 80
 
-    // --- 2. BANTUAN AI (50%) ---
-    let scoreElementMatch = (activeQuadrants / 4) * 25;
-    let scoreCreativity = Math.min(25, (colorVarietyCount > 5 && canvasCoverageRatio > 0.1) ? 25 : 15);
-    let bantuanAITotal = Math.round(scoreElementMatch + scoreCreativity);
+    // --- 2. BANTUAN AI ANALISIS VISUAL (20%) ---
+    // A. Sebaran Objek Pemandangan (Maks 10%)
+    let scoreElementMatch = (activeQuadrants / 4) * 10;
+    // B. Kompleksitas Detail (Maks 10%)
+    let scoreComplexity = Math.min(10, colorVarietyCount * 1.5);
 
-    let finalScore = Math.min(100, Math.max(10, rumusObjektifTotal + bantuanAITotal));
+    let bantuanAITotal = Math.round(scoreElementMatch + scoreComplexity); // Maks 20
+
+    // --- NILAI AKHIR GABUNGAN (80% Rubrik + 20% AI) ---
+    let finalScore = Math.min(100, Math.max(5, rubrikObjektifTotal + bantuanAITotal));
 
     let detailedFeedback = `
-Rincian Sistem Penilaian (50% Rumus + 50% AI):
-1. Bagian Rumus Objektif (Total: ${rumusObjektifTotal}/50)
-   - Kepadatan Kanvas: ${Math.round(scoreCoverage)} / 20
-   - Variasi Palet Warna (${colorVarietyCount} warna): ${Math.round(scoreColorVariety)} / 30
+Rincian Sistem Penilaian Sangat Ketat (80% Rubrik + 20% AI):
+1. Rubrik Objektif (Total: ${rubrikObjektifTotal}/80)
+   - Kepadatan Area Kanvas (${Math.round(canvasCoverageRatio * 100)}%): ${Math.round(scoreCoverage)} / 50
+   - Variasi Warna (${colorVarietyCount} jenis): ${Math.round(scoreColorVariety)} / 30
 
-2. Bagian Bantuan AI Analisis (Total: ${bantuanAITotal}/50)
-   - Kesesuaian Sebaran Objek: ${Math.round(scoreElementMatch)} / 25
-   - Kreativitas & Detail Visual: ${Math.round(scoreCreativity)} / 25
+2. Bantuan AI Analisis (Total: ${bantuanAITotal}/20)
+   - Sebaran Objek (${activeQuadrants}/4 Bagian): ${Math.round(scoreElementMatch)} / 10
+   - Kompleksitas Detail Gambar: ${Math.round(scoreComplexity)} / 10
 
 Catatan Evaluasi:
-- Gambar pemandangan menunjukkan penggunaan warna yang bervariasi dengan tingkat kepenuhan area gambar yang baik.
+- Gambar dinilai dengan standar ketat. Pastikan seluruh area kanvas terisi dan gunakan lebih banyak warna serta objek pemandangan.
     `.trim();
 
     return { 
@@ -821,7 +839,7 @@ function endAllTurns() {
 function openImageModal(studentName, imgData, score, desc) {
     document.getElementById('modal-preview-title').innerHTML = `<i class="fas fa-robot"></i> Hasil & Penilaian: ${studentName}`;
     document.getElementById('modal-img-preview').src = imgData;
-    document.getElementById('ai-score-text').innerHTML = `🤖 Nilai Akhir (50% Rumus + 50% AI): <span style="color: #f59e0b;">${score}</span>`;
+    document.getElementById('ai-score-text').innerHTML = `🤖 Nilai Akhir (80% Rubrik + 20% AI): <span style="color: #f59e0b;">${score}</span>`;
     document.getElementById('ai-desc-text').style.whiteSpace = "pre-line";
     document.getElementById('ai-desc-text').textContent = desc;
     document.getElementById('image-modal').style.display = 'flex';
