@@ -11,7 +11,7 @@ let timeLeft = 180;
 let isGameActive = false;
 let adminInterval = null;
 
-// Daftar 26 Pemandangan
+// Daftar 26 Sub-Tema Pemandangan
 const pemandanganPackage = [
     "Pemandangan Gunung", "Pemandangan Pantai", "Pemandangan Sawah", "Pemandangan Air Terjun", 
     "Pemandangan Desa", "Pemandangan Taman Bunga", "Pemandangan Sungai", "Pemandangan Hutan", 
@@ -178,13 +178,18 @@ async function fetchStudentsFromDatabase() {
         try {
             let response = await fetch(`${GS_WEB_APP_URL}?action=getStudents&kelas=${selectedClass}`);
             let names = await response.json();
-            setupStudentUI(names);
+            
+            if (names && names.length > 0) {
+                setupStudentUI(names);
+            } else {
+                setupStudentUI(["Belum ada nama siswa di Sheet Data_" + selectedClass]);
+            }
         } catch (e) {
             console.error("Gagal ambil dari database:", e);
-            setupStudentUI(["Siswa A", "Siswa B", "Siswa C"]);
+            setupStudentUI(["Gagal memuat koneksi Spreadsheet"]);
         }
     } else {
-        setupStudentUI(["Siswa A", "Siswa B", "Siswa C"]);
+        setupStudentUI(["URL Web App Belum Dikonfigurasi"]);
     }
 }
 
@@ -224,8 +229,8 @@ function startEntireGame() {
     if (elem.requestFullscreen) { elem.requestFullscreen().catch(()=>{}); }
 
     let names = window.rawDatabaseNames || [];
-    if(names.length === 0) {
-        alert("Daftar siswa kosong atau gagal dimuat!");
+    if(names.length === 0 || names[0].includes("Belum ada") || names[0].includes("Gagal") || names[0].includes("URL")) {
+        alert("Harap pastikan URL Apps Script valid dan Sheet Data_5A / Data_5B memiliki daftar nama siswa!");
         return;
     }
 
@@ -547,7 +552,7 @@ function floodFill(startX, startY, fillColor) {
 }
 
 // =========================================================================
-// SISTEM PENILAIAN 50% RUMUS OBJEKTIF + 50% BANTUAN AI PEMANDANGAN
+// SISTEM PENILAIAN HIBRIDA (50% RUMUS OBJEKTIF + 50% BANTUAN AI PEMANDANGAN)
 // =========================================================================
 function evaluateDrawingWithAI() {
     const width = canvas.width;
@@ -570,15 +575,14 @@ function evaluateDrawingWithAI() {
             let g = data[idx + 1];
             let b = data[idx + 2];
 
-            // Cek piksel bukan warna latar putih
             if (!(r > 245 && g > 245 && b > 245)) {
                 nonWhitePixels++;
                 uniqueColors.add(`${Math.floor(r / 32)},${Math.floor(g / 32)},${Math.floor(b / 32)}`);
 
-                if (x < midX && y < midY) quadrantFilled[0] = 1;      // Kiri Atas
-                else if (x >= midX && y < midY) quadrantFilled[1] = 1; // Kanan Atas
-                else if (x < midX && y >= midY) quadrantFilled[2] = 1; // Kiri Bawah
-                else quadrantFilled[3] = 1;                            // Kanan Bawah
+                if (x < midX && y < midY) quadrantFilled[0] = 1;
+                else if (x >= midX && y < midY) quadrantFilled[1] = 1;
+                else if (x < midX && y >= midY) quadrantFilled[2] = 1;
+                else quadrantFilled[3] = 1;
             }
         }
     }
@@ -587,23 +591,16 @@ function evaluateDrawingWithAI() {
     let colorVarietyCount = uniqueColors.size;
     let activeQuadrants = quadrantFilled.reduce((a, b) => a + b, 0);
 
-    // --- BAGIAN 1: RUMUS OBJEKTIF (50% dari total 100%) ---
-    // 1. Kepadatan / Penggunaan Kanvas (Maks 20%)
+    // --- 1. RUMUS OBJEKTIF (50%) ---
     let scoreCoverage = Math.min(20, canvasCoverageRatio * 60);
-    // 2. Variasi Warna / Palet (Maks 30%)
     let scoreColorVariety = Math.min(30, colorVarietyCount * 3);
+    let rumusObjektifTotal = Math.round(scoreCoverage + scoreColorVariety);
 
-    let rumusObjektifTotal = Math.round(scoreCoverage + scoreColorVariety); // Maks 50
-
-    // --- BAGIAN 2: BANTUAN AI ANALISIS VISUAL (50% dari total 100%) ---
-    // 1. Kesesuaian Elemen / Sebaran Pemandangan (Maks 25%)
+    // --- 2. BANTUAN AI (50%) ---
     let scoreElementMatch = (activeQuadrants / 4) * 25;
-    // 2. Kreativitas & Kerapian Visual / Detail (Maks 25%)
     let scoreCreativity = Math.min(25, (colorVarietyCount > 5 && canvasCoverageRatio > 0.1) ? 25 : 15);
+    let bantuanAITotal = Math.round(scoreElementMatch + scoreCreativity);
 
-    let bantuanAITotal = Math.round(scoreElementMatch + scoreCreativity); // Maks 50
-
-    // --- NILAI AKHIR GABUNGAN (50% Rumus + 50% AI) ---
     let finalScore = Math.min(100, Math.max(10, rumusObjektifTotal + bantuanAITotal));
 
     let detailedFeedback = `
@@ -617,7 +614,7 @@ Rincian Sistem Penilaian (50% Rumus + 50% AI):
    - Kreativitas & Detail Visual: ${Math.round(scoreCreativity)} / 25
 
 Catatan Evaluasi:
-- Gambar pemandangan menunjukkan penggunaan warna yang cukup bervariasi dengan tingkat kepenuhan area gambar yang baik.
+- Gambar pemandangan menunjukkan penggunaan warna yang bervariasi dengan tingkat kepenuhan area gambar yang baik.
     `.trim();
 
     return { 
