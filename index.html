@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Seni Rupa Kelas 5 - Penilaian Menggambar Hybrid (50% Rumus + 50% AI)</title>
+    <title>Seni Rupa Kelas 5 - Kanvas & Penilaian AI Pemandangan</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,11 +38,11 @@
 
     <!-- Halaman Dashboard Admin -->
     <div id="admin-dashboard-page" class="full-overlay" style="display: none; align-items: flex-start; overflow-y: auto; padding: 20px 0;">
-        <div class="card modal-card" style="max-width: 1000px; width: 95%; margin: auto;">
+        <div class="card modal-card" style="max-width: 950px; width: 95%; margin: auto;">
             <div class="modal-header">
                 <div>
-                    <h2 style="color: #38bdf8;"><i class="fas fa-database"></i> Database Penilaian Admin Kelas 5</h2>
-                    <small style="color: #34d399;"><i class="fas fa-sync fa-spin"></i> Realtime Sync Google Spreadsheet</small>
+                    <h2 style="color: #38bdf8;"><i class="fas fa-database"></i> Panel Kontrol & Database Admin</h2>
+                    <small style="color: #34d399;"><i class="fas fa-sync fa-spin"></i> Live Auto-Update aktif</small>
                 </div>
                 <button class="btn btn-danger btn-sm" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Keluar Admin</button>
             </div>
@@ -57,16 +57,14 @@
                     <thead>
                         <tr>
                             <th>Nama</th>
-                            <th>Tema Gambar</th>
-                            <th>Skor Rumus (50%)</th>
-                            <th>Skor AI (50%)</th>
-                            <th>Nilai Akhir</th>
+                            <th>Keterangan Gambar</th>
+                            <th>Nilai AI</th>
                             <th>Waktu</th>
-                            <th>Aksi</th>
+                            <th>Analisis</th>
                         </tr>
                     </thead>
                     <tbody id="admin-db-table-body">
-                        <tr><td colspan="7">Memuat data spreadsheet...</td></tr>
+                        <tr><td colspan="5">Memuat data spreadsheet...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -77,7 +75,7 @@
     <div id="warning-overlay" class="full-overlay" style="display: none;">
         <div class="card warning-card">
             <h2 style="margin-bottom: 12px; color: #dc3545; font-size: 24px;"><i class="fas fa-exclamation-triangle"></i> PERINGATAN!</h2>
-            <p style="color: #1e293b; font-size: 15px; font-weight: 700; margin-bottom: 10px;">Terdeteksi keluar layar penuh / berpindah aplikasi!</p>
+            <p style="color: #1e293b; font-size: 15px; font-weight: 700; margin-bottom: 10px;">Anda terdeteksi keluar dari layar penuh / berpindah aplikasi.</p>
             <button class="btn btn-danger" onclick="returnToFullscreen()" style="width: 100%; padding: 12px;"><i class="fas fa-compress"></i> Kembali ke Layar Penuh</button>
         </div>
     </div>
@@ -98,9 +96,9 @@
                 <h3><i class="fas fa-mountain"></i> Pilih Tema Pemandangan</h3>
             </div>
             <div class="modal-body" style="text-align: left;">
-                <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">Halo <strong id="modal-student-name" style="color: #38bdf8;">-</strong>, pilih tema pemandangan yang ingin kamu gambar:</p>
+                <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">Halo <strong id="modal-student-name" style="color: #38bdf8;">-</strong>, silakan pilih sub-tema pemandangan yang ingin digambar:</p>
                 
-                <label style="font-size: 13px; color: #94a3b8; display: block; margin-bottom: 8px;">Daftar Pemandangan Tersedia (26 Tema):</label>
+                <label style="font-size: 13px; color: #94a3b8; display: block; margin-bottom: 8px;">Daftar Pemandangan Tersedia:</label>
                 <select id="package-item-select" class="btn-class" style="width: 100%; margin-bottom: 20px; text-align: left; background: #0f172a; padding: 12px; font-size: 14px;"></select>
 
                 <button class="btn btn-glow" onclick="confirmStudentChoice()" style="width: 100%; padding: 12px; font-size: 15px;">Mulai Menggambar <i class="fas fa-play"></i></button>
@@ -117,18 +115,18 @@
         </div>
     </div>
 
-    <!-- Modal Preview Gambar & Rincian Penilaian Hybrid -->
+    <!-- Modal Preview Gambar & Analisis AI -->
     <div id="image-modal" class="full-overlay" style="display: none;">
         <div class="card modal-card">
             <div class="modal-header">
-                <h3 id="modal-preview-title"><i class="fas fa-award"></i> Rincian Penilaian Gambar</h3>
+                <h3 id="modal-preview-title"><i class="fas fa-robot"></i> Analisis AI & Hasil Gambar</h3>
                 <button class="btn-close" onclick="closeImageModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <img id="modal-img-preview" src="" alt="Hasil Gambar Siswa" style="max-height: 30vh; margin-bottom: 12px;">
-                <div id="ai-feedback-box" style="background: #0f172a; padding: 15px; border-radius: 10px; text-align: left; border: 1px solid #334155; max-height: 35vh; overflow-y: auto;">
-                    <p id="ai-score-text" style="font-size: 20px; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">Nilai Akhir: -</p>
-                    <div id="score-breakdown-details" style="font-size: 12px; color: #cbd5e1; line-height: 1.6; white-space: pre-line;">-</div>
+                <img id="modal-img-preview" src="" alt="Hasil Gambar Siswa" style="max-height: 35vh; margin-bottom: 15px;">
+                <div id="ai-feedback-box" style="background: #0f172a; padding: 15px; border-radius: 10px; text-align: left; border: 1px solid #334155; max-height: 30vh; overflow-y: auto;">
+                    <p id="ai-score-text" style="font-size: 18px; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">Nilai AI: -</p>
+                    <p id="ai-desc-text" style="font-size: 12px; color: #cbd5e1; line-height: 1.5; white-space: pre-line;">-</p>
                 </div>
             </div>
         </div>
@@ -145,29 +143,29 @@
 
         <main class="app-container">
             <header id="app-header-el" class="app-header">
-                <h1>🎨 Sistem Penilaian Menggambar SD Kelas 5</h1>
-                <p>Hybrid Evaluation System: 50% Rumus Canvas + 50% AI Multimodal Visual</p>
+                <h1>🎨 Seni Rupa Kelas 5 <span id="header-class-badge" class="badge">Kelas 5A</span></h1>
+                <p>Kanvas Menggambar Pemandangan & Penilaian AI Otomatis (3 Menit)</p>
             </header>
 
             <!-- Setup Panel -->
             <div id="setup-panel" class="glass-card">
                 <div class="setup-content">
-                    <h3>📜 Konfigurasi Ujian Seni Rupa</h3>
+                    <h3>📜 Konfigurasi Sesi Menggambar Pemandangan</h3>
                     
                     <label class="setup-label">Pilih Kelas / Mode:</label>
                     <div class="class-selector-group">
                         <button class="btn-class active" data-class="5A" onclick="selectClass('5A')">🏫 Kelas 5A</button>
                         <button class="btn-class" data-class="5B" onclick="selectClass('5B')">🏫 Kelas 5B</button>
-                        <button class="btn-class" data-class="Contohkan" onclick="selectClass('Contohkan')" style="background: #065f46; border-color: #34d399;">✨ Mode Simulasi</button>
+                        <button class="btn-class" data-class="Contohkan" onclick="selectClass('Contohkan')" style="background: #065f46; border-color: #34d399;">✨ Contohkan</button>
                     </div>
 
                     <ul class="rule-list" style="margin-top: 15px;">
-                        <li>📐 <strong>Penilaian 50% Rumus Objektif:</strong> Mengukur Luas Kanvas (20%), Keselarasan Warna Utama (15%), dan Distribusi Objek di 4 Area Kanvas (15%).</li>
-                        <li>🤖 <strong>Penilaian 50% AI Multimodal:</strong> Mengukur Kesesuaian Konteks Tema (16.7%), Komposisi & Kerapian (16.7%), dan Kreativitas/Detail Gambar (16.6%).</li>
-                        <li>⏳ <strong>Batas Waktu:</strong> 180 Detik (3 Menit) per siswa.</li>
-                        <li>🔒 <strong>Tema Unik:</strong> Bebas memilih dari 26 pilihan pemandangan (tidak boleh sama antar siswa).</li>
+                        <li>📥 <strong>Database Spreadsheet:</strong> Nama siswa ditarik otomatis dari sheet `Data_5A` & `Data_5B`.</li>
+                        <li>🔒 <strong>Sistem Objek Unik:</strong> Sub-tema pemandangan yang sudah diambil siswa lain otomatis hilang.</li>
+                        <li>⏳ <strong>Batas Waktu:</strong> Durasi menggambar <strong>180 detik (3 menit)</strong> per siswa (Kecuali mode Contohkan tanpa timer).</li>
+                        <li>🎨 <strong>Sistem Penilaian AI Hibrida:</strong> Berdasarkan kepenuhan kanvas, variasi warna, serta sebaran elemen pemandangan.</li>
                     </ul>
-                    <button id="start-btn" class="btn btn-glow" style="margin-top: 15px;"><i class="fas fa-play"></i> Mulai Sesi Ujian (Fullscreen)</button>
+                    <button id="start-btn" class="btn btn-glow" style="margin-top: 15px;"><i class="fas fa-play"></i> Mulai Sesi Menggambar (Fullscreen)</button>
                 </div>
             </div>
 
@@ -203,13 +201,13 @@
                     </div>
 
                     <div class="tool-group">
-                        <button class="btn btn-secondary btn-sm" onclick="undoCanvas()"><i class="fas fa-undo"></i> Undo</button>
-                        <button class="btn btn-danger btn-sm" onclick="clearCanvas()"><i class="fas fa-trash"></i> Hapus</button>
+                        <button class="btn btn-secondary btn-sm" onclick="undoCanvas()"><i class="fas fa-undo"></i> Kembali</button>
+                        <button class="btn btn-danger btn-sm" onclick="clearCanvas()"><i class="fas fa-trash"></i> Bersihkan</button>
                     </div>
                 </div>
 
                 <div class="palette-pool-box">
-                    <span class="box-label">🎨 Palet Warna Cepat Pemandangan:</span>
+                    <span class="box-label">🎨 Palet Cat Warna Cepat:</span>
                     <div id="color-palette-grid" class="palette-grid"></div>
                 </div>
 
@@ -219,17 +217,17 @@
 
                 <div class="tool-controls">
                     <div class="action-group" style="display: flex; gap: 10px; width: 100%;">
-                        <button class="btn btn-warning" style="padding: 12px; font-size: 13px; white-space: nowrap;" onclick="skipCurrentStudent()"><i class="fas fa-user-slash"></i> Lewati Siswa</button>
+                        <button class="btn btn-warning" style="padding: 12px; font-size: 13px; white-space: nowrap;" onclick="skipCurrentStudent()"><i class="fas fa-user-slash"></i> Skip Siswa</button>
                         <button class="btn btn-danger" style="padding: 12px; font-size: 13px; white-space: nowrap; background: #991b1b;" onclick="adminResetSession()"><i class="fas fa-redo"></i> Reset Sesi</button>
-                        <button id="next-turn-btn" class="btn btn-success" style="flex: 1; padding: 12px; font-size: 15px;" onclick="triggerSelesaiButton()"><i class="fas fa-check-circle"></i> Hitung Nilai & Lanjut <i class="fas fa-arrow-right"></i></button>
+                        <button id="next-turn-btn" class="btn btn-success" style="flex: 1; padding: 12px; font-size: 15px;" onclick="triggerSelesaiButton()"><i class="fas fa-check-circle"></i> Analisis AI & Lanjut <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
             </div>
 
             <!-- Finish Panel -->
             <div id="finish-panel" class="glass-card hidden">
-                <h2>🏆 Rekapitulasi Nilai Akhir Siswa Kelas 5</h2>
-                <p id="sync-status-msg" style="color: #38bdf8; font-size: 13px; margin-bottom: 15px;">Semua data nilai gabungan Rumus (50%) & AI (50%) telah tersimpan di Google Sheets.</p>
+                <h2>🏆 Laporan Hasil Karya & Penilaian AI Pemandangan</h2>
+                <p id="sync-status-msg" style="color: #38bdf8; font-size: 13px; margin-bottom: 15px;">Semua hasil nilai dan gambar siswa telah berhasil diperbarui ke Google Spreadsheet secara real-time.</p>
                 
                 <div class="result-table-wrapper">
                     <table class="result-table" id="result-table-element">
@@ -238,16 +236,15 @@
                                 <th>No</th>
                                 <th>Nama Siswa</th>
                                 <th>Tema Pemandangan</th>
-                                <th>Rumus (50%)</th>
-                                <th>AI (50%)</th>
-                                <th>Nilai Akhir</th>
+                                <th>Nilai AI</th>
+                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="result-table-body"></tbody>
                     </table>
                 </div>
-                <button id="restart-btn" class="btn btn-glow" style="margin-top: 15px; width:100%;"><i class="fas fa-redo"></i> Ulangi Ujian</button>
+                <button id="restart-btn" class="btn btn-glow" style="margin-top: 15px; width:100%;"><i class="fas fa-redo"></i> Ulangi Sesi</button>
             </div>
         </main>
     </div>
